@@ -1,44 +1,52 @@
 package com.teamSpring.JournalApplication.controller;
 
 import com.teamSpring.JournalApplication.entities.Journal;
+import com.teamSpring.JournalApplication.service.JournalService;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("journal")
 public class JournalController {
 
-    private final Map<Long, Journal> journalEntries = new HashMap<>();
+    @Autowired
+    private JournalService journalService;
+
 
     @GetMapping
     public List<Journal> getAllEntries() {
-        return new ArrayList<>(journalEntries.values());
+        return journalService.getJournals();
     }
 
     @GetMapping("id/{id}")
-    public Journal getJournalById(@PathVariable Long id) {
-        return journalEntries.get(id);
+    public Journal getJournalById(@PathVariable ObjectId id) {
+        return journalService.getJournalById(id).orElse(null);
     }
 
     @DeleteMapping("id/{id}")
-    public Journal removeJournalById(@PathVariable Long id) {
-        return journalEntries.remove(id);
+    public void removeJournalById(@PathVariable ObjectId id) {
+        journalService.removeJournalById(id);
     }
 
     @PostMapping
-    public boolean addJournal(@RequestBody Journal entry) {
-        journalEntries.put(entry.getId(), entry);
-        return true;
+    public void addJournal(@RequestBody Journal entry) {
+        entry.setDate(LocalDateTime.now());
+        journalService.addJournal(entry);
     }
 
     @PutMapping("id/{id}")
-    public boolean updateJournal(@PathVariable Long id,  @RequestBody Journal entry) {
-        journalEntries.put(id, entry);
-        return true;
+    public void updateJournal(@PathVariable ObjectId id, @RequestBody Journal updatedEntry) {
+        journalService.getJournalById(id).map(existingEntry -> {
+            existingEntry.setTitle(updatedEntry.getTitle() != null && !updatedEntry.getTitle().isEmpty() ? updatedEntry.getTitle() : existingEntry.getTitle());
+            existingEntry.setContent(updatedEntry.getContent() != null && !updatedEntry.getContent().isEmpty() ? updatedEntry.getContent() : existingEntry.getContent());
+            existingEntry.setDate(LocalDateTime.now());
+            journalService.addJournal(existingEntry);
+            return true;
+        });
     }
 
 }
