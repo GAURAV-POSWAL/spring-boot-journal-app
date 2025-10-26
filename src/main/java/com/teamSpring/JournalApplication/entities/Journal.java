@@ -12,10 +12,7 @@ import java.time.LocalDateTime;
 public class Journal {
     @Id
     private ObjectId id;
-
     private String title;
-
     private String content;
-
     private LocalDateTime date;
 }

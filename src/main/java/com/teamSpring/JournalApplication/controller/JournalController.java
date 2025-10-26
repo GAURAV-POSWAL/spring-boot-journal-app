@@ -44,7 +44,6 @@ public class JournalController {
     @PostMapping
     public void addJournal(@RequestBody Journal entry) {
         try {
-            entry.setDate(LocalDateTime.now());
             journalService.addJournal(entry);
             new ResponseEntity<>(entry, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -57,7 +56,6 @@ public class JournalController {
         journalService.getJournalById(id).map(existingEntry -> {
             existingEntry.setTitle(updatedEntry.getTitle() != null && !updatedEntry.getTitle().isEmpty() ? updatedEntry.getTitle() : existingEntry.getTitle());
             existingEntry.setContent(updatedEntry.getContent() != null && !updatedEntry.getContent().isEmpty() ? updatedEntry.getContent() : existingEntry.getContent());
-            existingEntry.setDate(LocalDateTime.now());
             journalService.addJournal(existingEntry);
             return new ResponseEntity<>(existingEntry, HttpStatus.OK);
         });
