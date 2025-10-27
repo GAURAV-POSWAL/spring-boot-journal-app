@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,9 +19,10 @@ public class JournalController {
     private JournalService journalService;
 
 
-    @GetMapping
-    public ResponseEntity<?> getAllEntries() {
-        List<Journal> journals = journalService.getJournals();
+    @GetMapping("/{username}")
+    public ResponseEntity<?> getAllJournalsForUser(@PathVariable String username) {
+
+        List<Journal> journals = journalService.getJournalsForUser(username);
         if (journals != null && !journals.isEmpty()) {
             return new ResponseEntity<>(journals, HttpStatus.OK);
         }
@@ -35,16 +35,16 @@ public class JournalController {
         return journal.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("id/{id}")
-    public ResponseEntity<?> removeJournalById(@PathVariable ObjectId id) {
-        journalService.removeJournalById(id);
+    @DeleteMapping("id/{username}/{id}")
+    public ResponseEntity<?> removeJournalById(@PathVariable ObjectId id, @PathVariable String username) {
+        journalService.removeJournalById(id, username);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping
-    public void addJournal(@RequestBody Journal entry) {
+    @PostMapping("/{username}")
+    public void addJournal(@RequestBody Journal entry, @PathVariable String username) {
         try {
-            journalService.addJournal(entry);
+            journalService.addJournalForUser(entry, username);
             new ResponseEntity<>(entry, HttpStatus.CREATED);
         } catch (Exception e) {
             new ResponseEntity<>(HttpStatus.BAD_REQUEST);
