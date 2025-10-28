@@ -6,6 +6,7 @@ import com.teamSpring.JournalApplication.repository.JournalRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,9 +21,13 @@ public class JournalService {
     @Autowired
     private UserService userService;
 
+    @Transactional
     public void addJournalForUser(Journal entry, String username) {
         User user = userService.getUserByUsername(username);
         user.getJournals().add(addJournal(entry));
+
+//        creating exception just to test transaction rollback
+//        user.setUsername(null);
         userService.addUser(user);
     }
 
