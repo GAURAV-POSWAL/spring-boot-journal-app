@@ -25,9 +25,6 @@ public class JournalService {
     public void addJournalForUser(Journal entry, String username) {
         User user = userService.getUserByUsername(username);
         user.getJournals().add(addJournal(entry));
-
-//        creating exception just to test transaction rollback
-//        user.setUsername(null);
         userService.addUser(user);
     }
 
